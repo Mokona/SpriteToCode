@@ -14,21 +14,27 @@ test_data_to_columnize = [0x12, 0x34, 0x9A, 0xBC,
                           0x56, 0x78, 0xDE, 0xF0]
 
 
-def image_from_test_data(size, data_list):
+def image_from_palette_data(size, data_list):
     data = array('B', data_list).tobytes()
     image = Image.frombytes('P', size, data)
     return image
 
 
-class TransformationCase(unittest.TestCase):
+def image_from_rgba_data(size, data_list):
+    data = array('B', data_list).tobytes()
+    image = Image.frombytes('RGBA', size, data)
+    return image
+
+
+class ColumnizeCase(unittest.TestCase):
     def test_encoding_test_data_works(self):
-        test_image = image_from_test_data((2, 2), test_data_no_change)
+        test_image = image_from_palette_data((2, 2), test_data_no_change)
 
         self.assertEqual(0x12, test_image.getpixel((0, 0)))
         self.assertEqual(0x34, test_image.getpixel((1, 0)))
 
     def test_columnize_sprites_already_in_column(self):
-        test_image = image_from_test_data((2, 2), test_data_no_change)
+        test_image = image_from_palette_data((2, 2), test_data_no_change)
         column_image = columnize(test_image, (2, 2))
 
         self.assertEqual((2, 2), column_image.size)
@@ -38,7 +44,7 @@ class TransformationCase(unittest.TestCase):
         self.assertEqual(0x78, column_image.getpixel((1, 1)))
 
     def test_columnize_sprites_not_in_column(self):
-        test_image = image_from_test_data((4, 2), test_data_to_columnize)
+        test_image = image_from_palette_data((4, 2), test_data_to_columnize)
         column_image = columnize(test_image, (2, 2))
 
         self.assertEqual((2, 4), column_image.size)
@@ -50,6 +56,69 @@ class TransformationCase(unittest.TestCase):
         self.assertEqual(0xBC, column_image.getpixel((1, 2)))
         self.assertEqual(0xDE, column_image.getpixel((0, 3)))
         self.assertEqual(0xF0, column_image.getpixel((1, 3)))
+
+
+test_rgb_data = [0x00, 0x00, 0x00, 0xFF, 0xDB, 0x1D, 0x23, 0xFF,
+                 0xF5, 0xE7, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+
+gb_palette = [
+    0x000000, 0x004385, 0x960040, 0x008B50, 0xCF8E44, 0x544D43, 0xA89987,
+    0xFFFFFF, 0xDB1D23, 0xFFA811, 0xF5E700, 0x85CF44, 0x7DBBFF, 0x4485CF,
+    0xCF4485, 0xFFD690
+]
+
+
+def rgba_tuple_to_color(rgba):
+    r, g, b, a = rgba
+    return (r << 24) + (g << 16) + (b << 8) + a
+
+
+def rgb_from_palette(palette, index):
+    r, g, b = palette[index * 3:index * 3 + 3]
+
+    return (r << 16) + (g << 8) + b
+
+
+def rgb_to_gamebuino_palette_index(rgb):
+    return gb_palette.index(rgb)
+
+
+def palettize(source_image):
+    palette_image = source_image.convert('P', palette=Image.ADAPTIVE)
+    return palette_image
+
+
+class PaletteCase(unittest.TestCase):
+    def test_gamebuino_palette(self):
+        self.assertEqual(0, rgb_to_gamebuino_palette_index(0x000000))
+        self.assertEqual(7, rgb_to_gamebuino_palette_index(0xFFFFFF))
+
+        with self.assertRaises(ValueError):
+            rgb_to_gamebuino_palette_index(0xFFFFFE)
+
+
+class PalettizeCase(unittest.TestCase):
+    def test_encoding_rgb_data_works(self):
+        test_image = image_from_rgba_data((2, 2), test_rgb_data)
+
+        self.assertEqual(0x000000FF, rgba_tuple_to_color(test_image.getpixel((0, 0))))
+        self.assertEqual(0xFFFFFFFF, rgba_tuple_to_color(test_image.getpixel((1, 1))))
+
+    def test_use_gamebuino_palette(self):
+        test_image = image_from_rgba_data((2, 2), test_rgb_data)
+        palette_image = palettize(test_image)
+
+        self.assertEqual(test_image.size, palette_image.size)
+        self.assertEqual('P', palette_image.mode)
+
+        palette = palette_image.getpalette()
+        content = palette_image.tobytes()
+
+        # Re-expand to color and transform to Gamebuino palette
+        rgb_content = (rgb_from_palette(palette, int(b)) for b in content)
+        gb_content = (rgb_to_gamebuino_palette_index(rgb) for rgb in rgb_content)
+
+        self.assertEqual([0x00, 0x08, 0x0A, 0x07], list(gb_content))
 
 
 if __name__ == '__main__':
