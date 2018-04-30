@@ -2,9 +2,11 @@
 """
 import argparse
 import os.path
-from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
 
 from PIL import Image
+
+import transformation
+from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
 
 
 def convert_file(filename):
@@ -37,7 +39,10 @@ def convert_file(filename):
     else:
         print("It has no palette")
 
-        # Linearize the file
+    image = transformation.columnize(image, (image_information["sprite_size"]))
+
+    print("Image has been transformed to a {} image".format(image.size))
+
         # If it has a palette or if force_palette, color mode = 1
         # Else color mode = 0
         # If it has no palette and color mode == 1, transform to palette
