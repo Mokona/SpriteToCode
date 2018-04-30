@@ -17,21 +17,13 @@ class SpriteToCodeCase(unittest.TestCase):
 
     def test_filename_with_wrong_attribute(self):
         filename = "Asset_8x4_nothing.png"
-        try:
+        with self.assertRaises(WrongFormat):
             extract_info_from_filename(filename)
-        except WrongFormat:
-            pass
-        else:
-            self.assertFalse("Wrong attribute should raise")
 
     def test_filename_with_wrong_format(self):
         filename = "filename.png"
-        try:
+        with self.assertRaises(WrongFormat):
             extract_info_from_filename(filename)
-        except WrongFormat:
-            pass
-        else:
-            self.assertFalse("Wrong attribute should raise")
 
     def test_filename_with_looping(self):
         filename = "Asset_8x4_2.png"
