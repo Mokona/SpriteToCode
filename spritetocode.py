@@ -20,7 +20,12 @@ def convert_file(filename):
         "{filename} is seen as '{asset_name}' of size {sprite_size} with frame loop {frame_loop}".format(
             filename=filename, **filename_information))
 
-    image = Image.open(filename)
+    try:
+        image = Image.open(filename)
+    except FileNotFoundError as e:
+        print("Cannot open file {}".format(filename))
+        print(e)
+        return
 
     image_information = extract_info_from_image(image)
     image_information.update(filename_information)
