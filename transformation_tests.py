@@ -3,7 +3,7 @@ from array import array
 
 from PIL import Image
 
-from transformation import columnize
+from transformation import columnize, rgb_to_gamebuino_palette_index, palettize
 
 """ A fake picture data of one sprite of 2x2 """
 test_data_no_change = [0x12, 0x34,
@@ -61,12 +61,6 @@ class ColumnizeCase(unittest.TestCase):
 test_rgb_data = [0x00, 0x00, 0x00, 0xFF, 0xDB, 0x1D, 0x23, 0xFF,
                  0xF5, 0xE7, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
-gb_palette = [
-    0x000000, 0x004385, 0x960040, 0x008B50, 0xCF8E44, 0x544D43, 0xA89987,
-    0xFFFFFF, 0xDB1D23, 0xFFA811, 0xF5E700, 0x85CF44, 0x7DBBFF, 0x4485CF,
-    0xCF4485, 0xFFD690
-]
-
 
 def rgba_tuple_to_color(rgba):
     r, g, b, a = rgba
@@ -77,15 +71,6 @@ def rgb_from_palette(palette, index):
     r, g, b = palette[index * 3:index * 3 + 3]
 
     return (r << 16) + (g << 8) + b
-
-
-def rgb_to_gamebuino_palette_index(rgb):
-    return gb_palette.index(rgb)
-
-
-def palettize(source_image):
-    palette_image = source_image.convert('P', palette=Image.ADAPTIVE)
-    return palette_image
 
 
 class PaletteCase(unittest.TestCase):

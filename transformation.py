@@ -24,3 +24,19 @@ def columnize(image, sprite_size):
         new_image.paste(band, (0, count * image_height))
 
     return new_image
+
+
+gb_palette = [
+    0x000000, 0x004385, 0x960040, 0x008B50, 0xCF8E44, 0x544D43, 0xA89987,
+    0xFFFFFF, 0xDB1D23, 0xFFA811, 0xF5E700, 0x85CF44, 0x7DBBFF, 0x4485CF,
+    0xCF4485, 0xFFD690
+]
+
+
+def rgb_to_gamebuino_palette_index(rgb):
+    return gb_palette.index(rgb)
+
+
+def palettize(source_image):
+    palette_image = source_image.convert('P', palette=Image.ADAPTIVE)
+    return palette_image

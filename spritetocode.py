@@ -44,11 +44,16 @@ def convert_file(filename, to_palette):
     print("Image has been transformed to a {} image".format(image.size))
 
     if to_palette and image.mode != 'P':
-        pass
+        image = transformation.palettize(image)
+        image_information["palette"] = image.getpalette()
+        print("It now has a palette (--to_palette)")
 
-        # If it has a palette or if force_palette, color mode = 1
-        # Else color mode = 0
-        # If it has no palette and color mode == 1, transform to palette
+    if image_information["palette"]:
+        image_information["color_mode"] = 0
+    else:
+        image_information["color_mode"] = 1
+
+        # Map the palettes
         # Read the templates
         # Send to codewriter
         # Write the files
