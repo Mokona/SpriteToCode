@@ -9,7 +9,7 @@ import transformation
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
 
 
-def convert_file(filename):
+def convert_file(filename, to_palette):
     basename = os.path.basename(filename)
     try:
         filename_information = extract_info_from_filename(basename)
@@ -43,6 +43,9 @@ def convert_file(filename):
 
     print("Image has been transformed to a {} image".format(image.size))
 
+    if to_palette and image.mode != 'P':
+        pass
+
         # If it has a palette or if force_palette, color mode = 1
         # Else color mode = 0
         # If it has no palette and color mode == 1, transform to palette
@@ -53,13 +56,15 @@ def convert_file(filename):
 
 def convert():
     parser = argparse.ArgumentParser(description="Convert images to code for Gamebuino")
+    parser.add_argument("--to_palette", action='store_true', default=False,
+                        help="output image will have a palette if possible")
     parser.add_argument("file", nargs="+", help="list of files to convert")
 
     args = vars(parser.parse_args())
     files = args["file"]
 
     for f in files:
-        convert_file(f)
+        convert_file(f, args["to_palette"])
 
 
 if __name__ == '__main__':
