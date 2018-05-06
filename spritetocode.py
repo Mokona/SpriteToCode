@@ -52,7 +52,7 @@ def convert_file(filename, to_palette):
 
     if image_information["palette"]:
         image_information["color_mode"] = 0
-        image_information["palette_mapping"] = palette_mapping(image.getpalette())
+        image_information["palette_mapping"] = transformation.palette_mapping(image.getpalette())
     else:
         image_information["color_mode"] = 1
 
