@@ -85,6 +85,7 @@ def convert_file(filename, to_palette, template_path):
 
     if image_information["palette"]:
         image_information["raw_payload"] = pack_data(image.getdata(), image_information["palette_mapping"])
+        image_information["transparent_color"] = 0x00
     else:
         print("FATAL ERROR, RGB565 mode (mode 0) not yet supported.")
         print()
