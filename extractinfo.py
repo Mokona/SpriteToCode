@@ -1,11 +1,6 @@
 import re
 
 
-def extract_info_from_image(image):
-    return {"image_size": image.size,
-            "palette": image.getpalette()}
-
-
 class WrongFormat(Exception):
     pass
 
@@ -37,3 +32,8 @@ def extract_info_from_filename(filename):
     del information["attribute"]
 
     return information
+
+
+def extract_info_from_image(image):
+    return {"image_size": image.size,
+            "palette": image.getpalette()}
