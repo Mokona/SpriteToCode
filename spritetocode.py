@@ -17,6 +17,7 @@ def convert_file(filename, to_palette):
     except WrongFormat as e:
         print("Error in filename {}:".format(basename))
         print(e)
+        print()
         return
 
     print(
@@ -28,6 +29,7 @@ def convert_file(filename, to_palette):
     except FileNotFoundError as e:
         print("Cannot open file {}".format(filename))
         print(e)
+        print()
         return
 
     image_information = extract_info_from_image(image)
@@ -58,6 +60,7 @@ def convert_file(filename, to_palette):
         # Read the templates
         # Send to codewriter
         # Write the files
+    print()
 
 
 def convert():
