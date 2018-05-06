@@ -3,7 +3,7 @@ from array import array
 
 from PIL import Image
 
-from transformation import columnize, rgb_to_gamebuino_palette_index, palettize, gb_palette
+from transformation import columnize, rgb_to_gamebuino_palette_index, palettize, gb_palette, palette_mapping
 
 """ A fake picture data of one sprite of 2x2 """
 test_data_no_change = [0x12, 0x34,
@@ -104,30 +104,6 @@ class PalettizeCase(unittest.TestCase):
         gb_content = (rgb_to_gamebuino_palette_index(rgb) for rgb in rgb_content)
 
         self.assertEqual([0x00, 0x08, 0x0A, 0x07], list(gb_content))
-
-
-def im_palette_as_rgb(im_palette):
-    from itertools import islice
-
-    reds = islice(im_palette, 0, None, 3)
-    greens = islice(im_palette, 1, None, 3)
-    blues = islice(im_palette, 2, None, 3)
-
-    return enumerate(zip(reds, greens, blues))
-
-
-def palette_mapping(im_palette):
-    mapping = {}
-
-    for i, (r, g, b) in im_palette_as_rgb(im_palette):
-        color = (r << 16) + (g << 8) + b
-
-        if color in gb_palette:
-            mapping[i] = gb_palette.index(color)
-        else:
-            mapping[i] = gb_palette.index(0x000000)
-
-    return mapping
 
 
 class PaletteMappingCase(unittest.TestCase):

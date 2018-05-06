@@ -6,8 +6,8 @@ import os.path
 from PIL import Image
 
 import transformation
+from codewriter import apply_templates
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
-from transformation_tests import palette_mapping
 
 
 def convert_file(filename, to_palette):
