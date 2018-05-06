@@ -3,7 +3,7 @@ from array import array
 
 from PIL import Image
 
-from transformation import columnize, rgb_to_gamebuino_palette_index, palettize
+from transformation import columnize, rgb_to_gamebuino_palette_index, palettize, gb_palette
 
 """ A fake picture data of one sprite of 2x2 """
 test_data_no_change = [0x12, 0x34,
@@ -104,6 +104,56 @@ class PalettizeCase(unittest.TestCase):
         gb_content = (rgb_to_gamebuino_palette_index(rgb) for rgb in rgb_content)
 
         self.assertEqual([0x00, 0x08, 0x0A, 0x07], list(gb_content))
+
+
+def im_palette_as_rgb(im_palette):
+    from itertools import islice
+
+    reds = islice(im_palette, 0, None, 3)
+    greens = islice(im_palette, 1, None, 3)
+    blues = islice(im_palette, 2, None, 3)
+
+    return enumerate(zip(reds, greens, blues))
+
+
+def palette_mapping(im_palette):
+    mapping = {}
+    missing_colors = 0
+
+    for i, (r, g, b) in im_palette_as_rgb(im_palette):
+        color = (r << 16) + (g << 8) + b
+
+        if color in gb_palette:
+            mapping[i] = gb_palette.index(color)
+        else:
+            missing_colors += 1
+
+    return mapping, missing_colors
+
+
+class PaletteMappingCase(unittest.TestCase):
+    def test_map_only_black(self):
+        black_palette = [0x00, 0x00, 0x00]
+        mapping, missing = palette_mapping(black_palette)
+
+        self.assertEqual(gb_palette.index(0x000000), mapping[0])
+        self.assertEqual(0, missing)
+
+    def test_map_black_and_white(self):
+        palette = [0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00]
+        mapping, missing = palette_mapping(palette)
+
+        self.assertEqual(gb_palette.index(0xFFFFFF), mapping[0])
+        self.assertEqual(gb_palette.index(0x000000), mapping[1])
+        self.assertEqual(0, missing)
+
+    def test_missing_colors_are_counter(self):
+        palette = [0xFF, 0xFF, 0xFF, 0x00, 0x43, 0x85, 0x12, 0x34, 0x45]
+        mapping, missing = palette_mapping(palette)
+
+        self.assertEqual(1, missing)
+        self.assertEqual(gb_palette.index(0xFFFFFF), mapping[0])
+        self.assertEqual(gb_palette.index(0x004385), mapping[1])
 
 
 if __name__ == '__main__':

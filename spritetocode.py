@@ -7,6 +7,7 @@ from PIL import Image
 
 import transformation
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
+from transformation_tests import palette_mapping
 
 
 def convert_file(filename, to_palette):
@@ -50,10 +51,10 @@ def convert_file(filename, to_palette):
 
     if image_information["palette"]:
         image_information["color_mode"] = 0
+        image_information["palette_mapping"] = palette_mapping(image.getpalette())
     else:
         image_information["color_mode"] = 1
 
-        # Map the palettes
         # Read the templates
         # Send to codewriter
         # Write the files
