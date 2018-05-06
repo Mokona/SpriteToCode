@@ -64,3 +64,13 @@ def palette_mapping(im_palette):
             mapping[i] = gb_palette.index(0x000000)
 
     return mapping
+
+
+def pack_data(image_data, mapping):
+    from itertools import islice
+
+    even = islice(image_data, 0, None, 2)
+    odd = islice(image_data, 1, None, 2)
+    return [(mapping.get(a, 0) << 4) + mapping.get(b, 0)
+            for a, b
+            in zip(even, odd)]

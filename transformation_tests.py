@@ -3,7 +3,7 @@ from array import array
 
 from PIL import Image
 
-from transformation import columnize, rgb_to_gamebuino_palette_index, palettize, gb_palette, palette_mapping
+from transformation import columnize, rgb_to_gamebuino_palette_index, palettize, gb_palette, palette_mapping, pack_data
 
 """ A fake picture data of one sprite of 2x2 """
 test_data_no_change = [0x12, 0x34,
@@ -127,6 +127,33 @@ class PaletteMappingCase(unittest.TestCase):
         self.assertEqual(gb_palette.index(0xFFFFFF), mapping[0])
         self.assertEqual(gb_palette.index(0x004385), mapping[1])
         self.assertEqual(gb_palette.index(0x000000), mapping[2])
+
+
+class PackDataCase(unittest.TestCase):
+    def test_pack_data_with_identity_mapping(self):
+        image_data = [0x00, 0x08, 0x0F, 0x02]
+        mapping = {x: x for x in range(16)}
+        packed_data = pack_data(image_data, mapping)
+
+        self.assertEqual([0x08, 0xF2], packed_data)
+
+    def test_pack_data_with_mapping(self):
+        image_data = [0x00, 0x08, 0x0F, 0x02]
+        mapping = {x: x for x in range(16)}
+        mapping[0x00] = 0x0F
+        mapping[0x02] = 0x00
+        mapping[0x08] = 0x02
+        mapping[0x0F] = 0x08
+        packed_data = pack_data(image_data, mapping)
+
+        self.assertEqual([0xF2, 0x80], packed_data)
+
+    def test_pack_data_with_out_of_bound_index_maps_to_0(self):
+        image_data = [0x00, 0x08, 0x2F, 0x02]
+        mapping = {x: x for x in range(16)}
+        packed_data = pack_data(image_data, mapping)
+
+        self.assertEqual([0x08, 0x02], packed_data)
 
 
 if __name__ == '__main__':

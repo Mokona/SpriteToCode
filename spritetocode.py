@@ -7,7 +7,7 @@ from PIL import Image
 
 from codewriter import apply_templates
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat, compute_frame_count
-from transformation import columnize, palette_mapping, palettize
+from transformation import columnize, palette_mapping, palettize, pack_data
 
 
 class ApplicationError(Exception):
@@ -82,6 +82,13 @@ def convert_file(filename, to_palette, template_path):
         image_information["palette_mapping"] = palette_mapping(image.getpalette())
     else:
         image_information["color_mode"] = 1
+
+    if image_information["palette"]:
+        image_information["raw_payload"] = pack_data(image.getdata(), image_information["palette_mapping"])
+    else:
+        print("FATAL ERROR, RGB565 mode (mode 0) not yet supported.")
+        print()
+        return
 
     try:
         templates = read_templates(template_path)
