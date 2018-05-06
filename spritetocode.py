@@ -78,10 +78,10 @@ def convert_file(filename, to_palette, template_path):
         print("It now has a palette (--to_palette)")
 
     if image_information["palette"]:
-        image_information["color_mode"] = 0
+        image_information["color_mode"] = 1
         image_information["palette_mapping"] = palette_mapping(image.getpalette())
     else:
-        image_information["color_mode"] = 1
+        image_information["color_mode"] = 0
 
     if image_information["palette"]:
         image_information["raw_payload"] = pack_data(image.getdata(), image_information["palette_mapping"])
