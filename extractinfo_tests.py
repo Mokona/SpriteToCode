@@ -1,9 +1,9 @@
 import unittest
 
-from extractinfo import extract_info_from_filename, WrongFormat
+from extractinfo import extract_info_from_filename, WrongFormat, compute_frame_count
 
 
-class ExtractInfoTestCase(unittest.TestCase):
+class ExtractInfoFromFilenameTestCase(unittest.TestCase):
     def test_filename_gives_information(self):
         filename = "Asset_8x4_fixed.png"
         information = extract_info_from_filename(filename)
@@ -29,6 +29,16 @@ class ExtractInfoTestCase(unittest.TestCase):
         filename = "Asset_8x4_2.png"
         information = extract_info_from_filename(filename)
         self.assertEqual(2, information["frame_loop"])
+
+
+class ComputeFramesTestCase(unittest.TestCase):
+    def test_compute_frames(self):
+        image_size = (32, 16)
+        sprite_size = (16, 8)
+
+        frame_count = compute_frame_count(image_size, sprite_size)
+
+        self.assertEqual(4, frame_count)
 
 
 if __name__ == '__main__':

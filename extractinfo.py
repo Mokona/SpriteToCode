@@ -37,3 +37,9 @@ def extract_info_from_filename(filename):
 def extract_info_from_image(image):
     return {"image_size": image.size,
             "palette": image.getpalette()}
+
+
+def compute_frame_count(image_size, sprite_size):
+    width = image_size[0] / sprite_size[0]
+    height = image_size[1] / sprite_size[1]
+    return int(width * height)

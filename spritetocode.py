@@ -5,8 +5,8 @@ import os.path
 
 from PIL import Image
 
-import transformation
-from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat
+from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat, compute_frame_count
+from transformation import columnize, palette_mapping, palettize
 
 
 def convert_file(filename, to_palette):
@@ -36,23 +36,28 @@ def convert_file(filename, to_palette):
 
     print("Image has a size of {image_size}".format(**image_information))
 
+    image_information["frames"] = compute_frame_count(image_information["image_size"],
+                                                      image_information["sprite_size"])
+
+    print("Image contains {} frame(s)".format(image_information["frames"]))
+
     if image_information["palette"]:
         print("It has a palette")
     else:
         print("It has no palette")
 
-    image = transformation.columnize(image, (image_information["sprite_size"]))
+    image = columnize(image, (image_information["sprite_size"]))
 
     print("Image has been transformed to a {} image".format(image.size))
 
     if to_palette and image.mode != 'P':
-        image = transformation.palettize(image)
+        image = palettize(image)
         image_information["palette"] = image.getpalette()
         print("It now has a palette (--to_palette)")
 
     if image_information["palette"]:
         image_information["color_mode"] = 0
-        image_information["palette_mapping"] = transformation.palette_mapping(image.getpalette())
+        image_information["palette_mapping"] = palette_mapping(image.getpalette())
     else:
         image_information["color_mode"] = 1
 
