@@ -5,11 +5,33 @@ import os.path
 
 from PIL import Image
 
+from codewriter import apply_templates
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat, compute_frame_count
 from transformation import columnize, palette_mapping, palettize
 
 
-def convert_file(filename, to_palette):
+class ApplicationError(Exception):
+    pass
+
+
+def read_templates(template_path):
+    template_names = {"cpp": "data_template.cpp",
+                      "h": "data_template.h"}
+
+    template_content = {}
+
+    for kind, filename in template_names.items():
+        try:
+            with open(filename, "rt") as f:
+                content = f.readlines()
+                template_content[kind] = content
+        except FileNotFoundError as e:
+            raise ApplicationError("Template was not found: {}".format(filename))
+
+    return template_content
+
+
+def convert_file(filename, to_palette, template_path):
     basename = os.path.basename(filename)
     try:
         filename_information = extract_info_from_filename(basename)
@@ -61,9 +83,13 @@ def convert_file(filename, to_palette):
     else:
         image_information["color_mode"] = 1
 
-        # Read the templates
-        # Send to codewriter
-        # Write the files
+    try:
+        templates = read_templates(template_path)
+    except ApplicationError as e:
+        print("FATAL ERROR reading the templates.")
+        print(e)
+        print()
+        return
     print()
 
 
@@ -71,13 +97,15 @@ def convert():
     parser = argparse.ArgumentParser(description="Convert images to code for Gamebuino")
     parser.add_argument("--to_palette", action='store_true', default=False,
                         help="output image will have a palette if possible")
+    parser.add_argument("--template_path", default=".",
+                        help="path to find the file templates")
     parser.add_argument("file", nargs="+", help="list of files to convert")
 
     args = vars(parser.parse_args())
     files = args["file"]
 
     for f in files:
-        convert_file(f, args["to_palette"])
+        convert_file(f, args["to_palette"], args["template_path"])
 
 
 if __name__ == '__main__':
