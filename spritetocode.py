@@ -98,6 +98,14 @@ def convert_file(filename, to_palette, template_path):
         print(e)
         print()
         return
+
+    template_tuple = templates["h"], templates["cpp"]
+    output_content = apply_templates(template_tuple, image_information)
+
+    for f in output_content:
+        print(f)
+    # Write the files
+
     print()
 
 
