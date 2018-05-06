@@ -23,7 +23,7 @@ def read_templates(template_path):
     for kind, filename in template_names.items():
         try:
             with open(filename, "rt") as f:
-                content = f.readlines()
+                content = f.read()
                 template_content[kind] = content
         except FileNotFoundError as e:
             raise ApplicationError("Template was not found: {}".format(filename))
