@@ -118,7 +118,6 @@ def im_palette_as_rgb(im_palette):
 
 def palette_mapping(im_palette):
     mapping = {}
-    missing_colors = 0
 
     for i, (r, g, b) in im_palette_as_rgb(im_palette):
         color = (r << 16) + (g << 8) + b
@@ -126,34 +125,32 @@ def palette_mapping(im_palette):
         if color in gb_palette:
             mapping[i] = gb_palette.index(color)
         else:
-            missing_colors += 1
+            mapping[i] = gb_palette.index(0x000000)
 
-    return mapping, missing_colors
+    return mapping
 
 
 class PaletteMappingCase(unittest.TestCase):
     def test_map_only_black(self):
         black_palette = [0x00, 0x00, 0x00]
-        mapping, missing = palette_mapping(black_palette)
+        mapping = palette_mapping(black_palette)
 
         self.assertEqual(gb_palette.index(0x000000), mapping[0])
-        self.assertEqual(0, missing)
 
     def test_map_black_and_white(self):
         palette = [0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00]
-        mapping, missing = palette_mapping(palette)
+        mapping = palette_mapping(palette)
 
         self.assertEqual(gb_palette.index(0xFFFFFF), mapping[0])
         self.assertEqual(gb_palette.index(0x000000), mapping[1])
-        self.assertEqual(0, missing)
 
-    def test_missing_colors_are_counter(self):
+    def test_missing_colors_are_mapped_to_black(self):
         palette = [0xFF, 0xFF, 0xFF, 0x00, 0x43, 0x85, 0x12, 0x34, 0x45]
-        mapping, missing = palette_mapping(palette)
+        mapping = palette_mapping(palette)
 
-        self.assertEqual(1, missing)
         self.assertEqual(gb_palette.index(0xFFFFFF), mapping[0])
         self.assertEqual(gb_palette.index(0x004385), mapping[1])
+        self.assertEqual(gb_palette.index(0x000000), mapping[2])
 
 
 if __name__ == '__main__':
