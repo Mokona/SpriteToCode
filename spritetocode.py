@@ -22,7 +22,8 @@ def read_templates(template_path):
 
     for kind, filename in template_names.items():
         try:
-            with open(filename, "rt") as f:
+            complete_filename = os.path.join(template_path, filename)
+            with open(complete_filename, "rt") as f:
                 content = f.read()
                 template_content[kind] = content
         except FileNotFoundError as e:
