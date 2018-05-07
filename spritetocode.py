@@ -9,6 +9,8 @@ from codewriter import apply_templates
 from extractinfo import extract_info_from_image, extract_info_from_filename, WrongFormat, compute_frame_count
 from transformation import columnize, palette_mapping, palettize, pack_data
 
+VERSION = "0.9"
+
 
 class ApplicationError(Exception):
     pass
@@ -132,6 +134,7 @@ def convert():
                         help="path to find the file templates")
     parser.add_argument("--output_path", default=".",
                         help="path where the generate files are written to.")
+    parser.add_argument('--version', action='version', version="%(prog)s " + VERSION)
     parser.add_argument("file", nargs="+", help="list of files to convert")
 
     args = vars(parser.parse_args())
