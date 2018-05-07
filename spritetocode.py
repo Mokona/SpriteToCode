@@ -36,6 +36,9 @@ def write_files(output_path, asset_name, content):
     asset_name = asset_name.lower()
     filename = "data_" + asset_name
 
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+
     output_data_header = os.path.join(output_path, filename + ".h")
     with open(output_data_header, "wt") as f:
         f.write(content[0])
