@@ -32,7 +32,20 @@ def read_templates(template_path):
     return template_content
 
 
-def convert_file(filename, to_palette, template_path):
+def write_files(output_path, asset_name, content):
+    asset_name = asset_name.lower()
+    filename = "data_" + asset_name
+
+    output_data_header = os.path.join(output_path, filename + ".h")
+    with open(output_data_header, "wt") as f:
+        f.write(content[0])
+
+    output_data_body = os.path.join(output_path, filename + ".cpp")
+    with open(output_data_body, "wt") as f:
+        f.write(content[1])
+
+
+def convert_file(filename, to_palette, template_path, output_path):
     basename = os.path.basename(filename)
     try:
         filename_information = extract_info_from_filename(basename)
@@ -103,9 +116,7 @@ def convert_file(filename, to_palette, template_path):
     template_tuple = templates["h"], templates["cpp"]
     output_content = apply_templates(template_tuple, image_information)
 
-    for f in output_content:
-        print(f)
-    # Write the files
+    write_files(output_path, filename_information["asset_name"], output_content)
 
     print()
 
@@ -116,13 +127,15 @@ def convert():
                         help="output image will have a palette if possible")
     parser.add_argument("--template_path", default=".",
                         help="path to find the file templates")
+    parser.add_argument("--output_path", default=".",
+                        help="path where the generate files are written to.")
     parser.add_argument("file", nargs="+", help="list of files to convert")
 
     args = vars(parser.parse_args())
     files = args["file"]
 
     for f in files:
-        convert_file(f, args["to_palette"], args["template_path"])
+        convert_file(f, args["to_palette"], args["template_path"], args["output_path"])
 
 
 if __name__ == '__main__':
